@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: diabetes-postgres
+    environment:
+      POSTGRES_DB: diabetes_db
+      POSTGRES_USER: diabetes_user
+      POSTGRES_PASSWORD: diabetes_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
