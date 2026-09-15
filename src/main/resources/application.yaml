@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: diabetes-api
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/diabetes_db
+    username: diabetes_user
+    password: diabetes_password
+
+  jpa:
+    hibernate:
+      ddl-auto: update
