@@ -26,3 +26,22 @@ This project does not provide medical diagnoses, treatment plans, or insulin dos
 
    ```bash
    docker compose up -d
+   ```
+
+## Data Model Decisions
+
+These decisions were made before writing the first entity. Each one is listed with the reason behind it.
+
+| Topic | Decision | Reason |
+|---|---|---|
+| Table structure | Single `entry` table with a `type` column | All record types share the same shape (type, value, time), so recent values and the log list can be read from one table with one query. |
+| Value type | `BigDecimal`, stored as `numeric(6,2)` | `double` cannot represent some decimals exactly (`0.1 + 0.2 = 0.30000000000000004`); insulin doses and daily totals must be exact. |
+| Enum mapping | `@Enumerated(EnumType.STRING)` | `ORDINAL` stores the enum position, so adding or reordering values would silently change the meaning of existing rows. |
+| Time | `Instant`, stored in UTC | `Instant` is an exact point in time; `LocalDateTime` has no time zone and becomes ambiguous if the server zone changes. Day boundaries are calculated in Europe/Istanbul time. |
+| Id strategy | `Long` with `GenerationType.IDENTITY` | Records are inserted one at a time by a single user, so the batch insert advantage of `SEQUENCE` is not needed and the simplest option is enough. |
+
+### Trade-offs
+
+- **Single table:** Rules that differ per type (for example valid value ranges) are not enforced by the table structure. They will be handled by the validator and database constraints.
+- **`numeric(6,2)`:** The maximum value is 9999.99, which covers glucose (mg/dL), carbohydrates (g) and insulin (units).
+- **`IDENTITY`:** Hibernate cannot batch inserts with this strategy. This is acceptable at this project's scale.
