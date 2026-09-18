@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -29,13 +29,13 @@ public class Entry {
 	private BigDecimal value;
 
 	@Column(nullable = false)
-	private Instant recordedAt;
+	private LocalDateTime recordedAt;
 
 	@CreatedDate
 	@Column(nullable = false, updatable = false)
-	private Instant createdAt;
+	private LocalDateTime createdAt;
 
 	@LastModifiedDate
 	@Column(nullable = false)
-	private Instant updatedAt;
+	private LocalDateTime updatedAt;
 }

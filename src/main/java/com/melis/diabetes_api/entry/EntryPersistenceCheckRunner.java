@@ -9,7 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Component
@@ -23,7 +23,7 @@ public class EntryPersistenceCheckRunner implements CommandLineRunner {
 		Entry entry = new Entry();
 		entry.setType(EntryType.FASTING_GLUCOSE);
 		entry.setValue(new BigDecimal("120.00"));
-		entry.setRecordedAt(Instant.now());
+		entry.setRecordedAt(LocalDateTime.now());
 
 		Entry saved = entryRepository.save(entry);
 
