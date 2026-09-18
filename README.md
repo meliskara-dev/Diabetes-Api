@@ -37,7 +37,7 @@ These decisions were made before writing the first entity. Each one is listed wi
 | Table structure | Single `entry` table with a `type` column | All record types share the same shape (type, value, time), so recent values and the log list can be read from one table with one query. |
 | Value type | `BigDecimal`, stored as `numeric(6,2)` | `double` cannot represent some decimals exactly (`0.1 + 0.2 = 0.30000000000000004`); insulin doses and daily totals must be exact. |
 | Enum mapping | `@Enumerated(EnumType.STRING)` | `ORDINAL` stores the enum position, so adding or reordering values would silently change the meaning of existing rows. |
-| Time | `Instant`, stored in UTC | `Instant` is an exact point in time; `LocalDateTime` has no time zone and becomes ambiguous if the server zone changes. Day boundaries are calculated in Europe/Istanbul time. |
+| Time | `LocalDateTime`, stored as `timestamp` in Europe/Istanbul time | There is a single user living in Istanbul, and Türkiye no longer uses daylight saving time. Storing the local wall-clock time keeps reads, day boundaries and responses simple, with no conversion step. |
 | Id strategy | `Long` with `GenerationType.IDENTITY` | Records are inserted one at a time by a single user, so the batch insert advantage of `SEQUENCE` is not needed and the simplest option is enough. |
 
 ### Trade-offs
@@ -45,3 +45,4 @@ These decisions were made before writing the first entity. Each one is listed wi
 - **Single table:** Rules that differ per type (for example valid value ranges) are not enforced by the table structure. They will be handled by the validator and database constraints.
 - **`numeric(6,2)`:** The maximum value is 9999.99, which covers glucose (mg/dL), carbohydrates (g) and insulin (units).
 - **`IDENTITY`:** Hibernate cannot batch inserts with this strategy. This is acceptable at this project's scale.
+- **`LocalDateTime`:** The value has no time zone, so its meaning depends on the zone it was created in. `LocalDateTime.now()` uses the JVM default zone; if the server runs in UTC (for example in a container), times would be stored 3 hours off. The zone must therefore be fixed to Europe/Istanbul explicitly. If the app ever needs to support users in other zones, switching back to `Instant` would require a data migration.
